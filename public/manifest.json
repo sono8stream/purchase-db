@@ -1,0 +1,22 @@
+{
+  "short_name": "Sono Template",
+  "name": "React Sono template",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "800x800"
+    }
+  ],
+  "start_url": ".",
+  "description": "Sono's react template",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
