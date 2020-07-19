@@ -1,27 +1,35 @@
 const puppeteer = require('puppeteer');
 const admin = require('firebase-admin');
+admin.initializeApp();
+
+const db = admin.firestore();
 
 let page;
 const fetchers = [
   {
     domain: 'https://ec.nintendo.com',
-    selector: '.o_p-product-detail__price--price',
+    nameSelector: '.o_c-page-title',
+    priceSelector: '.o_p-product-detail__price--price',
   },
   {
     domain: 'https://www.nintendo.co.jp',
-    selector: '.online-price-value',
+    nameSelector: '.soft-title-heading',
+    priceSelector: '.online-price-value',
   },
   {
     domain: 'https://store.playstation.com',
-    selector: '.price-display__price',
+    nameSelector: '.pdp__title',
+    priceSelector: '.price-display__price',
   },
   {
     domain: 'https://store.steampowered.com',
-    selector: '.game_purchase_price',
+    nameSelector: '.apphub_AppName',
+    priceSelector: '.game_purchase_price',
   },
   {
     domain: 'https://www.amazon.co.jp',
-    selector: '#priceblock_ourprice',
+    nameSelector: '.product-title-word-break',
+    priceSelector: '#priceblock_ourprice',
   },
 ];
 
@@ -38,7 +46,7 @@ exports.getPrices = async (req, res) => {
     res.status(405).send('Method Not Allowed');
     return;
   }
-  if (!req.body || !req.body.urls) {
+  if (!req.body || !req.body.id) {
     res.status(400).send('Request Body Not Found');
     return;
   }
@@ -47,29 +55,48 @@ exports.getPrices = async (req, res) => {
     page = await getBrowserPage();
   }
 
+  const docPath = `games/${req.body.id}`;
+  const snapshot = await db.doc(docPath).get();
+  const pages = snapshot.data().pages;
+
   const prices = [];
 
-  for (const url of req.body.urls) {
+  for (const info of pages) {
     for (const fetcher of fetchers) {
-      if (url.startsWith(fetcher.domain)) {
-        await page.goto(url);
+      if (info.url.startsWith(fetcher.domain)) {
+        await page.goto(info.url);
 
-        const price = await page.evaluate((selector) => {
-          const elem = document.querySelector(selector);
+        const name = await page.evaluate((nameSelector) => {
+          const elem = document.querySelector(nameSelector);
+
+          if (elem) {
+            return elem.textContent.trim();
+          }
+
+          return '';
+        }, fetcher.nameSelector);
+
+        const price = await page.evaluate((priceSelector) => {
+          const elem = document.querySelector(priceSelector);
 
           if (elem) {
             return elem.textContent;
           }
 
           return '';
-        }, fetcher.selector);
+        }, fetcher.priceSelector);
 
         prices.push(price);
+
+        info.name = name;
+        info.price = price;
 
         break;
       }
     }
   }
+
+  db.doc(docPath).update({ pages });
 
   res.set('Content-Type', 'application/json');
   res.send({ prices: prices });
