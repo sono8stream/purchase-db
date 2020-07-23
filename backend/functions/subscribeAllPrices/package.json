@@ -5,6 +5,7 @@
     "deploy": "gcloud functions deploy subscribeAllPrices --region=asia-northeast2 --memory=1024MB --runtime=nodejs10 --timeout=540 --trigger-topic=daily-12"
   },
   "dependencies": {
-    "firebase-admin": "^8.13.0"
+    "firebase-admin": "^8.13.0",
+    "node-fetch": "^2.6.0"
   }
 }
