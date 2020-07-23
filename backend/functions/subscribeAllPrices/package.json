@@ -1,0 +1,10 @@
+{
+  "name": "subscribe-all-prices",
+  "version": "0.0.1",
+  "scripts": {
+    "deploy": "gcloud functions deploy subscribeAllPrices --region=asia-northeast2 --memory=1024MB --runtime=nodejs10 --timeout=540 --trigger-topic=daily-12"
+  },
+  "dependencies": {
+    "firebase-admin": "^8.13.0"
+  }
+}
