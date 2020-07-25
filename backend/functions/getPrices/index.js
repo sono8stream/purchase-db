@@ -1,8 +1,4 @@
 const puppeteer = require('puppeteer');
-const admin = require('firebase-admin');
-admin.initializeApp();
-
-const db = admin.firestore();
 
 let page;
 const fetchers = [
@@ -46,7 +42,7 @@ exports.getPrices = async (req, res) => {
     res.status(405).send('Method Not Allowed');
     return;
   }
-  if (!req.body || !req.body.id) {
+  if (!req.body || !req.body.urls) {
     res.status(400).send('Request Body Not Found');
     return;
   }
@@ -55,16 +51,12 @@ exports.getPrices = async (req, res) => {
     page = await getBrowserPage();
   }
 
-  const docPath = `games/${req.body.id}`;
-  const snapshot = await db.doc(docPath).get();
-  const pages = snapshot.data().pages;
+  const pages = [];
 
-  const prices = [];
-
-  for (const info of pages) {
+  for (const url of req.body.urls) {
     for (const fetcher of fetchers) {
-      if (info.url.startsWith(fetcher.domain)) {
-        await page.goto(info.url);
+      if (url.startsWith(fetcher.domain)) {
+        await page.goto(url);
 
         const name = await page.evaluate((nameSelector) => {
           const elem = document.querySelector(nameSelector);
@@ -86,18 +78,12 @@ exports.getPrices = async (req, res) => {
           return '';
         }, fetcher.priceSelector);
 
-        prices.push(price);
-
-        info.name = name;
-        info.price = price;
-
+        pages.push({ name, price });
         break;
       }
     }
   }
 
-  db.doc(docPath).update({ pages });
-
   res.set('Content-Type', 'application/json');
-  res.send({ prices: prices });
+  res.send({ pages });
 };
