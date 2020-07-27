@@ -3,4 +3,5 @@
   "tslint.configFile": "tslint.json",
   "tslint.autoFixOnSave": true,
   "editor.tabSize": 2,
+  "files.eol": "\n"
 }
