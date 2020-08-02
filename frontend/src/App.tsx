@@ -1,26 +1,22 @@
 import React from 'react';
-import 'semantic-ui-css/semantic.min.css';
-import './App.css';
-import logo from './logo.svg';
+import { Router, Route, Switch } from 'react-router-dom';
+import { createBrowserHistory } from 'history';
+import ScrollToTop from './components/ScrollToTop';
+import Main from './pages/Main';
+import GameInfo from './pages/GameInfo';
 
 const App: React.FC = () => {
+  const history = createBrowserHistory();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router history={history}>
+      <ScrollToTop>
+        <Switch>
+          <Route exact={true} path="/games/:id" component={GameInfo} />
+          <Route path="/" component={Main} />
+        </Switch>
+      </ScrollToTop>
+    </Router>
   );
 };
 
