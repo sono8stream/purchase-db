@@ -77,10 +77,10 @@ exports.getPrices = async (req, res) => {
           const elem = document.querySelector(priceSelector);
 
           if (elem) {
-            return elem.textContent;
+            return elem.textContent.replace(/[^0-9]/g, "");
           }
 
-          return "";
+          return 0;
         }, fetcher.priceSelector);
 
         const market = fetcher.market;

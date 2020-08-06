@@ -4,17 +4,11 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
-  GridRow,
-  GridColumn,
   Statistic,
-  Header,
   Image,
   CardHeader,
   CardDescription,
   CardGroup,
-  Segment,
-  Container,
   ButtonGroup,
 } from 'semantic-ui-react';
 import PageWrapper from '../components/PageWrapper';
@@ -24,7 +18,7 @@ interface GamePage {
   date: string;
   name: string;
   market: string;
-  price: string;
+  price: number;
   url: string;
 }
 
@@ -59,14 +53,13 @@ const Main: React.FC = () => {
     <PageWrapper>
       <CardGroup stackable itemsPerRow={3}>
         {gameList.map((game, index) => {
-          let minMarket = 'here';
+          let minMarket = '';
           let minPrice = 1e9;
           let minUrl = '';
           game.pages.forEach((page) => {
-            const price = Number(page.price.replace(/[^0-9]/g, ''));
-            if (price < minPrice) {
+            if (page.price < minPrice) {
               minMarket = page.market;
-              minPrice = price;
+              minPrice = page.price;
               minUrl = page.url;
             }
           });
@@ -74,7 +67,7 @@ const Main: React.FC = () => {
           return (
             <Card fluid={true} key={index}>
               <Image
-                floated="left"
+                floated="right"
                 src={game.sumbnailUrl}
                 size="tiny"
                 wrapped
@@ -87,23 +80,26 @@ const Main: React.FC = () => {
                   floated="right"
                   size="small"
                   label={minMarket}
-                  value={`¥${minPrice}`}
+                  value={`¥${minPrice.toLocaleString()}`}
+                  style={{
+                    verticalAlign: 'bottom',
+                  }}
                 />
               </CardContent>
               <CardContent extra>
                 <ButtonGroup floated="right">
+                  <Button
+                    color="grey"
+                    content="他の価格を見る"
+                    as={Link}
+                    to={`/games/${game.id}`}
+                  />
                   <Button
                     color="teal"
                     content="ストアに行く"
                     as="a"
                     target="_blank"
                     href={minUrl}
-                  />
-                  <Button
-                    color="black"
-                    content="その他の価格"
-                    as={Link}
-                    to={`/games/${game.id}`}
                   />
                 </ButtonGroup>
               </CardContent>

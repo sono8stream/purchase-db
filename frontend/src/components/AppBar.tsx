@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { Menu } from 'semantic-ui-react';
 
 interface Props {
@@ -7,17 +7,21 @@ interface Props {
 }
 
 const AppBar: React.FC<Props> = ({ active }) => {
-  const pages: { name: string; to: string; text: string }[] = [
-    { name: 'home', to: '/', text: 'Home' },
-    { name: 'about', to: '/about', text: 'About' },
-    { name: 'product', to: '/product', text: 'Product' },
-    { name: 'techblog', to: '/techblog', text: 'Tech Blog' },
-    { name: 'diary', to: '/diary', text: 'Diary' },
-  ];
+  const pages: { name: string; to: string; text: string }[] = [];
+
+  const history = useHistory();
 
   return (
     <>
       <Menu fixed="top" inverted color="teal" style={{ overflow: 'auto' }}>
+        <Menu.Item
+          header={true}
+          onClick={() => {
+            history.push('/');
+          }}
+        >
+          GameDB!
+        </Menu.Item>
         {pages.map((page, index) => (
           <Menu.Item
             key={index}
