@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           Contact Me
         </Button>
         <Divider />
-        <p>Copyright © 2019 sono. All rights reserved.</p>
+        <p>Copyright © 2020 sono. All rights reserved.</p>
       </Container>
     </Segment>
   );

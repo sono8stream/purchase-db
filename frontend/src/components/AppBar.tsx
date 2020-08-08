@@ -12,29 +12,27 @@ const AppBar: React.FC<Props> = ({ active }) => {
   const history = useHistory();
 
   return (
-    <>
-      <Menu fixed="top" inverted color="teal" style={{ overflow: 'auto' }}>
+    <Menu fixed="top" inverted color="teal" style={{ overflow: 'auto' }}>
+      <Menu.Item
+        header={true}
+        onClick={() => {
+          history.push('/');
+        }}
+      >
+        GameDB!
+      </Menu.Item>
+      {pages.map((page, index) => (
         <Menu.Item
-          header={true}
-          onClick={() => {
-            history.push('/');
-          }}
+          key={index}
+          name={page.name}
+          as={Link}
+          to={page.to}
+          active={active === page.name}
         >
-          GameDB!
+          {page.text}
         </Menu.Item>
-        {pages.map((page, index) => (
-          <Menu.Item
-            key={index}
-            name={page.name}
-            as={Link}
-            to={page.to}
-            active={active === page.name}
-          >
-            {page.text}
-          </Menu.Item>
-        ))}
-      </Menu>
-    </>
+      ))}
+    </Menu>
   );
 };
 

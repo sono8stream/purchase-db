@@ -1,0 +1,10 @@
+{
+  "name": "get-meta-info",
+  "version": "0.0.1",
+  "scripts": {
+    "deploy": "gcloud functions deploy getMetaInfo --region=asia-northeast2 --allow-unauthenticated --memory=1024MB --runtime=nodejs10 --timeout=540 --trigger-http"
+  },
+  "dependencies": {
+    "puppeteer": "^2.1.0"
+  }
+}

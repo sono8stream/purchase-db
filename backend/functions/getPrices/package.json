@@ -5,7 +5,6 @@
     "deploy": "gcloud functions deploy getPrices --region=asia-northeast2 --allow-unauthenticated --memory=1024MB --runtime=nodejs10 --timeout=540 --trigger-http"
   },
   "dependencies": {
-    "puppeteer": "^2.1.0",
-    "firebase-admin": "^8.13.0"
+    "puppeteer": "^2.1.0"
   }
 }

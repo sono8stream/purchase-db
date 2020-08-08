@@ -51,6 +51,14 @@ const Main: React.FC = () => {
 
   return (
     <PageWrapper>
+      <Button
+        inverted
+        content="ゲームを追加する"
+        floated="right"
+        color="red"
+        as={Link}
+        to="/games/create"
+      />
       <CardGroup stackable itemsPerRow={3}>
         {gameList.map((game, index) => {
           let minMarket = '';
@@ -63,6 +71,9 @@ const Main: React.FC = () => {
               minUrl = page.url;
             }
           });
+          if (minPrice === 1e9) {
+            minPrice = 0;
+          }
 
           return (
             <Card fluid={true} key={index}>

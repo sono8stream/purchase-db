@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Container, Segment } from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 
 import AppBar from './AppBar';
 import Footer from './Footer';

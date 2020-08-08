@@ -43,6 +43,8 @@ async function getBrowserPage() {
 }
 
 exports.getPrices = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+
   if (req.method !== "POST") {
     res.status(405).send("Method Not Allowed");
     return;
@@ -77,7 +79,7 @@ exports.getPrices = async (req, res) => {
           const elem = document.querySelector(priceSelector);
 
           if (elem) {
-            return elem.textContent.replace(/[^0-9]/g, "");
+            return Number(elem.textContent.replace(/[^0-9]/g, ""));
           }
 
           return 0;

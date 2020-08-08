@@ -6,6 +6,7 @@
     "interface-name": false,
     "import-name": false,
     "jsx-no-lambda": false,
+    "jsx-boolean-value": [true, "never"],
     "no-empty-interface": false,
     "object-literal-sort-keys": false,
     "semicolon": true,
