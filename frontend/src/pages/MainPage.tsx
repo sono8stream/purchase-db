@@ -83,11 +83,13 @@ const Main: React.FC = () => {
           <GridColumn>
             <CardGroup stackable itemsPerRow={3}>
               {gameList.map((game, index) => {
+                let minName = '';
                 let minMarket = '';
                 let minPrice = 1e9;
                 let minUrl = '';
                 game.pages.forEach((page) => {
                   if (page.price < minPrice) {
+                    minName = page.name;
                     minMarket = page.market;
                     minPrice = page.price;
                     minUrl = page.url;
@@ -140,7 +142,7 @@ const Main: React.FC = () => {
                                   <Statistic
                                     floated="right"
                                     size="small"
-                                    label={minMarket}
+                                    label={`${minName}(${minMarket})`}
                                     value={`¥${minPrice.toLocaleString()}`}
                                     style={{
                                       verticalAlign: 'bottom',

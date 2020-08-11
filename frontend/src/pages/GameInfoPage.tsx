@@ -12,6 +12,9 @@ import {
   Divider,
   BreadcrumbSection,
   BreadcrumbDivider,
+  Grid,
+  GridRow,
+  GridColumn,
 } from 'semantic-ui-react';
 import PageWrapper from '../components/PageWrapper';
 import { useParams } from 'react-router';
@@ -76,7 +79,8 @@ const GameInfoPage: React.FC = () => {
           history[key].reverse();
         });
         setGameHistory(history);
-      });
+      })
+      .catch((e) => {});
   }, [id]);
 
   return (
@@ -91,75 +95,101 @@ const GameInfoPage: React.FC = () => {
         </Breadcrumb>
       </Container>
       <Divider />
-      <Image floated="left" src={gameInfo?.sumbnailUrl} size="medium" />
-      <Header floated="left" size="large">
-        {gameInfo?.name}
-        <Header.Subheader>{gameInfo?.description}</Header.Subheader>
-      </Header>
-      <Button
-        inverted
-        color="blue"
-        content="公式サイト"
-        as="a"
-        target="_blank"
-        href={gameInfo?.officialUrl}
-      />
-      {gameInfo?.pages.map((page, index) => {
-        return (
-          <Card fluid key={index}>
-            <CardContent>
-              <Header size="huge" floated="left" content={page.market} />
-              <Statistic
-                floated="right"
-                size="tiny"
-                value={`¥${page.price.toLocaleString()}`}
-              />
-            </CardContent>
-            <CardContent>
-              <Button
-                color="teal"
-                content="ストアに行く"
-                floated="right"
-                as="a"
-                target="_blank"
-                href={page.url}
-              />
-            </CardContent>
-            <CardContent>
-              <div style={{ height: 200 }}>
-                <ResponsiveContainer width="95%">
-                  <LineChart data={gameHistory[page.url] || []}>
-                    <Line
-                      type="monotone"
-                      dataKey="price"
-                      stroke="#8884d8"
-                      isAnimationActive={false}
+      <Grid>
+        <GridRow>
+          <GridColumn>
+            <Image floated="left" src={gameInfo?.sumbnailUrl} size="medium" />
+            <Header floated="left" size="large">
+              {gameInfo?.name}
+              <Header.Subheader>{gameInfo?.description}</Header.Subheader>
+            </Header>
+          </GridColumn>
+        </GridRow>
+        <GridRow>
+          <GridColumn>
+            <Button
+              inverted
+              color="blue"
+              content="公式サイト"
+              as="a"
+              target="_blank"
+              href={gameInfo?.officialUrl}
+            />
+          </GridColumn>
+        </GridRow>
+        <GridRow>
+          <GridColumn>
+            <Divider />
+            <Button
+              as={Link}
+              to={`${id}/edit`}
+              color="blue"
+              content="情報を編集する"
+            />
+          </GridColumn>
+        </GridRow>
+        <GridRow>
+          <GridColumn>
+            {gameInfo?.pages.map((page, index) => {
+              return (
+                <Card fluid key={index}>
+                  <CardContent>
+                    <Header
+                      size="huge"
+                      floated="left"
+                      content={`${page.name}(${page.market})`}
                     />
-                    <CartesianGrid stroke="#ccc" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
-      <Button
-        as={Link}
-        to={`${id}/edit`}
-        color="blue"
-        content="情報を編集する"
-        fluid
-      />
-      <Divider />
-      <Breadcrumb>
-        <BreadcrumbSection link as={Link} to="/">
-          Top
-        </BreadcrumbSection>
-        <BreadcrumbDivider icon="right angle" />
-        <BreadcrumbSection active>{gameInfo?.name}</BreadcrumbSection>
-      </Breadcrumb>
+                    <Statistic
+                      floated="right"
+                      size="tiny"
+                      value={`¥${page.price.toLocaleString()}`}
+                    />
+                  </CardContent>
+                  <CardContent>
+                    <Button
+                      color="teal"
+                      content="ストアに行く"
+                      floated="right"
+                      as="a"
+                      target="_blank"
+                      href={page.url}
+                    />
+                  </CardContent>
+                  <CardContent>
+                    <div style={{ height: 200 }}>
+                      <ResponsiveContainer width="95%">
+                        <LineChart data={gameHistory[page.url] || []}>
+                          <Line
+                            type="monotone"
+                            dataKey="price"
+                            stroke="#8884d8"
+                            isAnimationActive={false}
+                          />
+                          <CartesianGrid stroke="#ccc" />
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </GridColumn>
+        </GridRow>
+        <GridRow>
+          <GridColumn>
+            <Divider />
+            <Breadcrumb>
+              <BreadcrumbSection link as={Link} to="/">
+                Top
+              </BreadcrumbSection>
+              <BreadcrumbDivider icon="right angle" />
+              <BreadcrumbSection active>{gameInfo?.name}</BreadcrumbSection>
+            </Breadcrumb>
+          </GridColumn>
+        </GridRow>
+      </Grid>
     </PageWrapper>
   );
 };

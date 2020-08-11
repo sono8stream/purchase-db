@@ -1,15 +1,33 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Form, FormButton, FormInput, Loader } from 'semantic-ui-react';
 import { firestore } from '../firebase';
+import GameInfo from '../models/GameInfo';
 
-const GameBasicInfoForm: React.FC<{ onSubmit: () => void }> = ({
-  onSubmit,
-}) => {
+const GameBasicInfoForm: React.FC<{
+  id: string;
+  onSubmit: (id: string) => void;
+}> = ({ id, onSubmit }) => {
   const [officialUrl, setOfficialUrl] = useState('');
   const [isFetchingInfo, setIsFetchingInfo] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [sumbnailUrl, setSumbnailUrl] = useState('');
+
+  useEffect(() => {
+    if (id) {
+      firestore
+        .collection('games')
+        .doc(id)
+        .get()
+        .then((doc) => {
+          const info = doc.data() as GameInfo;
+          setOfficialUrl(info.officialUrl);
+          setTitle(info.name);
+          setDescription(info.description);
+          setSumbnailUrl(info.sumbnailUrl);
+        });
+    }
+  }, [id]);
 
   const fillByOfficialURL = useCallback(() => {
     if (
@@ -17,10 +35,9 @@ const GameBasicInfoForm: React.FC<{ onSubmit: () => void }> = ({
       officialUrl.startsWith('https://')
     ) {
       setIsFetchingInfo(true);
-      fetch(
-        `https://asia-northeast2-game-subscribe-db.cloudfunctions.net/getMetaInfo?url=${officialUrl}`
-      )
+      fetch(`/getMetaInfo?url=${officialUrl}`)
         .then((res) => {
+          console.log(res);
           res.json().then((json) => {
             if (!title) {
               setTitle(json.title);
@@ -42,12 +59,33 @@ const GameBasicInfoForm: React.FC<{ onSubmit: () => void }> = ({
 
   const submitNewGame = useCallback(() => {
     if (officialUrl && title && description && sumbnailUrl) {
-      firestore
-        .collection('games')
-        .add({ name: title, description, officialUrl, sumbnailUrl, pages: [] })
-        .then(() => {
-          onSubmit();
-        });
+      if (id) {
+        firestore
+          .collection('games')
+          .doc(id)
+          .update({
+            name: title,
+            description,
+            officialUrl,
+            sumbnailUrl,
+          })
+          .then(() => {
+            onSubmit(id);
+          });
+      } else {
+        firestore
+          .collection('games')
+          .add({
+            name: title,
+            description,
+            officialUrl,
+            sumbnailUrl,
+            pages: [],
+          })
+          .then((ref) => {
+            onSubmit(ref.id);
+          });
+      }
     }
   }, [officialUrl, title, description, sumbnailUrl, onSubmit]);
 
@@ -90,7 +128,7 @@ const GameBasicInfoForm: React.FC<{ onSubmit: () => void }> = ({
       <FormButton
         basic
         color="blue"
-        content="ゲームを追加"
+        content={id ? '更新' : 'ゲームを追加'}
         onClick={submitNewGame}
       />
     </Form>

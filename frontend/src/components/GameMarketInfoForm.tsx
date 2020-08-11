@@ -1,8 +1,17 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { Form, FormButton, FormInput, Loader, Table } from 'semantic-ui-react';
+import {
+  Form,
+  FormButton,
+  FormInput,
+  Loader,
+  Table,
+  Button,
+  Input,
+} from 'semantic-ui-react';
 import { firestore } from '../firebase';
 import MarketPage from '../models/MarketPage';
 import GameInfo from '../models/GameInfo';
+import { Link } from 'react-router-dom';
 
 interface PageInfo {
   name: string;
@@ -69,20 +78,21 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
   }, [storeUrl]);
 
   const submitNewStore = useCallback(() => {
-    const newPages = pages;
-    newPages.push({
-      name: pageInfo.name,
-      market: pageInfo.market,
-      price: pageInfo.price,
-      url: storeUrl,
-    });
+    const newPages = [
+      ...pages,
+      {
+        name: pageInfo.name,
+        market: pageInfo.market,
+        price: pageInfo.price,
+        url: storeUrl,
+      },
+    ];
     setPages(newPages);
     firestore
       .collection('games')
       .doc(id)
       .update({ pages: newPages })
       .then(() => {
-        console.log('hoge');
         firestore
           .collection('history')
           .doc(id)
@@ -104,6 +114,26 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           });
       });
   }, [pageInfo, unixDate, storeUrl]);
+
+  const updatePagesStoreName = useCallback(
+    (i: number, newName: string) => {
+      const newPages = pages.map((page, index) =>
+        index === i ? { ...page, name: newName } : page
+      );
+      setPages(newPages);
+      firestore.collection('games').doc(id).update({ pages: newPages });
+    },
+    [pages]
+  );
+
+  const removePagesStoreInfo = useCallback(
+    (i: number) => {
+      const newPages = pages.filter((page, index) => index !== i);
+      setPages(newPages);
+      firestore.collection('games').doc(id).update({ pages: newPages });
+    },
+    [pages]
+  );
 
   return (
     <>
@@ -133,8 +163,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           }
         />
         <FormInput
-          label="・プラットフォーム / 購入形式"
-          required
+          label="・プラットフォーム / バージョン"
           value={pageInfo.name}
           onChange={(e, { name, value }) =>
             setPageInfo({ ...pageInfo, name: value })
@@ -148,12 +177,13 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           onClick={submitNewStore}
         />
       </Form>
-      <Table celled>
+      <Table celled padded>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>ストア</Table.HeaderCell>
-            <Table.HeaderCell>プラットフォーム / 購入形式</Table.HeaderCell>
+            <Table.HeaderCell>プラットフォーム / バージョン</Table.HeaderCell>
             <Table.HeaderCell>URL</Table.HeaderCell>
+            <Table.HeaderCell />
           </Table.Row>
         </Table.Header>
 
@@ -161,11 +191,27 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           {pages.map((page, index) => (
             <Table.Row key={index}>
               <Table.Cell>{page.market}</Table.Cell>
-              <Table.Cell>{page.name}</Table.Cell>
+              <Table.Cell>
+                <Input
+                  defaultValue={page.name}
+                  onBlur={(e: any) =>
+                    updatePagesStoreName(index, e.target.value)
+                  }
+                  type="text"
+                />
+              </Table.Cell>
               <Table.Cell>
                 <a href={page.url} target="_blank">
                   {page.url}
                 </a>
+              </Table.Cell>
+              <Table.Cell>
+                <Button
+                  content="削除"
+                  color="red"
+                  inverted
+                  onClick={() => removePagesStoreInfo(index)}
+                />
               </Table.Cell>
             </Table.Row>
           ))}

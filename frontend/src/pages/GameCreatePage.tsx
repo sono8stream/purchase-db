@@ -10,7 +10,10 @@ const GameCreatePage: React.FC = () => {
   return (
     <PageWrapper>
       <Header>新規ゲーム</Header>
-      <GameBasicInfoForm onSubmit={() => history.push('/')} />
+      <GameBasicInfoForm
+        id=""
+        onSubmit={(id) => history.push(`/games/${id}`)}
+      />
     </PageWrapper>
   );
 };
