@@ -11,8 +11,6 @@ async function getBrowserPage() {
 }
 
 exports.getMetaInfo = async (req, res) => {
-  res.set("Access-Control-Allow-Origin", "*");
-
   if (req.method !== "GET") {
     res.status(405).send("Method Not Allowed");
     return;

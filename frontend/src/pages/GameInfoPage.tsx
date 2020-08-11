@@ -24,22 +24,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { Link } from 'react-router-dom';
-
-interface MarketPage {
-  date: string;
-  name: string;
-  market: string;
-  price: number;
-  url: string;
-}
-
-interface GameInfo {
-  name: string;
-  description: string;
-  officialUrl: string;
-  sumbnailUrl: string;
-  pages: MarketPage[];
-}
+import GameInfo from '../models/GameInfo';
 
 interface MarketHistory {
   date: string;

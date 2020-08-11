@@ -29,7 +29,6 @@ exports.subscribeAllPrices = async (event, context) => {
       .then((res) => res.json())
       .then((json) => {
         json.pages.forEach((page, idx) => {
-          pages[idx].date = unixDate;
           pages[idx].name = page.name;
           pages[idx].market = page.market;
           pages[idx].price = page.price;
@@ -47,7 +46,7 @@ exports.subscribeAllPrices = async (event, context) => {
               if (!(page.url in data)) {
                 data[page.url] = [];
               }
-              data[page.url].unshift({ date: page.date, price: page.price });
+              data[page.url].unshift({ date: unixDate, price: page.price });
             });
 
             historyRef.doc(doc.id).set(data);
