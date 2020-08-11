@@ -54,5 +54,6 @@
     "typescript": "^3.9.6",
     "typescript-fsa": "^3.0.0",
     "typescript-fsa-reducers": "^1.2.2"
-  }
+  },
+  "proxy": "http://localhost:8080"
 }

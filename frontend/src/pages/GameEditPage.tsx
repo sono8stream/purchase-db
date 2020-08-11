@@ -1,55 +1,31 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import PageWrapper from '../components/PageWrapper';
 import {
   Form,
-  FormField,
-  Input,
-  Segment,
   Header,
   FormButton,
-  Table,
+  FormInput,
+  Loader,
+  Segment,
 } from 'semantic-ui-react';
+import { firestore } from '../firebase';
+import { useHistory, useParams } from 'react-router';
+import GameBasicInfoForm from '../components/GameBasicInfoForm';
+import GameMarketInfoForm from '../components/GameMarketInfoForm';
 
 const GameEditPage: React.FC = () => {
+  const history = useHistory();
+  const id = useParams<{ id: string }>().id;
+
   return (
     <PageWrapper>
       <Segment>
-        <Header>ストアページ</Header>
-        <Form>
-          <Form>
-            <FormField control={Input} label="・ページURL" required />
-            <FormButton basic color="blue" content="URLを検証" />
-          </Form>
-          <FormField control={Input} label="・ストア/製品情報" />
-          <FormButton basic color="red" content="ストアを追加" />
-        </Form>
-        <Table celled>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>ストア/製品情報</Table.HeaderCell>
-              <Table.HeaderCell>ストア</Table.HeaderCell>
-              <Table.HeaderCell>URL</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            <Table.Row>
-              <Table.Cell>cell</Table.Cell>
-              <Table.Cell>Cell</Table.Cell>
-              <Table.Cell>Cell</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>Cell</Table.Cell>
-              <Table.Cell>Cell</Table.Cell>
-              <Table.Cell>Cell</Table.Cell>
-            </Table.Row>
-            <Table.Row>
-              <Table.Cell>Cell</Table.Cell>
-              <Table.Cell>Cell</Table.Cell>
-              <Table.Cell>Cell</Table.Cell>
-            </Table.Row>
-          </Table.Body>
-        </Table>
+        <Header>基本情報</Header>
+        <GameBasicInfoForm onSubmit={() => {}} />
+      </Segment>
+      <Segment>
+        <Header>ストア情報</Header>
+        <GameMarketInfoForm id={id} />
       </Segment>
     </PageWrapper>
   );

@@ -5,6 +5,7 @@ import ScrollToTop from './components/ScrollToTop';
 import MainPage from './pages/MainPage';
 import GameInfoPage from './pages/GameInfoPage';
 import GameCreatePage from './pages/GameCreatePage';
+import GameEditPage from './pages/GameEditPage';
 
 const App: React.FC = () => {
   const history = createBrowserHistory();
@@ -15,6 +16,7 @@ const App: React.FC = () => {
         <Switch>
           <Route exact={true} path="/games/create" component={GameCreatePage} />
           <Route exact={true} path="/games/:id" component={GameInfoPage} />
+          <Route exact={true} path="/games/:id/edit" component={GameEditPage} />
           <Route path="/" component={MainPage} />
         </Switch>
       </ScrollToTop>

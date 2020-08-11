@@ -10,6 +10,15 @@ import {
   CardDescription,
   CardGroup,
   ButtonGroup,
+  Divider,
+  Breadcrumb,
+  BreadcrumbSection,
+  BreadcrumbDivider,
+  Container,
+  GridRow,
+  Grid,
+  GridColumn,
+  Header,
 } from 'semantic-ui-react';
 import PageWrapper from '../components/PageWrapper';
 import { Link } from 'react-router-dom';
@@ -51,73 +60,125 @@ const Main: React.FC = () => {
 
   return (
     <PageWrapper>
-      <Button
-        inverted
-        content="ゲームを追加する"
-        floated="right"
-        color="red"
-        as={Link}
-        to="/games/create"
-      />
-      <CardGroup stackable itemsPerRow={3}>
-        {gameList.map((game, index) => {
-          let minMarket = '';
-          let minPrice = 1e9;
-          let minUrl = '';
-          game.pages.forEach((page) => {
-            if (page.price < minPrice) {
-              minMarket = page.market;
-              minPrice = page.price;
-              minUrl = page.url;
-            }
-          });
-          if (minPrice === 1e9) {
-            minPrice = 0;
-          }
+      <Container textAlign="left">
+        <Breadcrumb>
+          <BreadcrumbSection active>Top</BreadcrumbSection>
+        </Breadcrumb>
+      </Container>
+      <Divider />
+      <Grid>
+        <GridRow>
+          <GridColumn>
+            <Button
+              inverted
+              content="ゲームを追加する"
+              floated="right"
+              color="red"
+              as={Link}
+              to="/games/create"
+            />
+          </GridColumn>
+        </GridRow>
+        <GridRow>
+          <GridColumn>
+            <CardGroup stackable itemsPerRow={3}>
+              {gameList.map((game, index) => {
+                let minMarket = '';
+                let minPrice = 1e9;
+                let minUrl = '';
+                game.pages.forEach((page) => {
+                  if (page.price < minPrice) {
+                    minMarket = page.market;
+                    minPrice = page.price;
+                    minUrl = page.url;
+                  }
+                });
 
-          return (
-            <Card fluid={true} key={index}>
-              <Image
-                floated="right"
-                src={game.sumbnailUrl}
-                size="tiny"
-                wrapped
-                ui={false}
-              />
-              <CardContent>
-                <CardHeader size="medium" content={game.name} />
-                <CardDescription>{game.description}</CardDescription>
-                <Statistic
-                  floated="right"
-                  size="small"
-                  label={minMarket}
-                  value={`¥${minPrice.toLocaleString()}`}
-                  style={{
-                    verticalAlign: 'bottom',
-                  }}
-                />
-              </CardContent>
-              <CardContent extra>
-                <ButtonGroup floated="right">
-                  <Button
-                    color="grey"
-                    content="他の価格を見る"
-                    as={Link}
-                    to={`/games/${game.id}`}
-                  />
-                  <Button
-                    color="teal"
-                    content="ストアに行く"
-                    as="a"
-                    target="_blank"
-                    href={minUrl}
-                  />
-                </ButtonGroup>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </CardGroup>
+                return (
+                  <Card fluid={true} key={index}>
+                    <Image
+                      floated="right"
+                      src={game.sumbnailUrl}
+                      size="tiny"
+                      wrapped
+                      ui={false}
+                    />
+                    <CardContent>
+                      <CardHeader size="medium" content={game.name} />
+                      <CardDescription>{game.description}</CardDescription>
+                    </CardContent>
+                    <CardContent extra>
+                      {(() => {
+                        if (minPrice === 1e9) {
+                          return (
+                            <Grid>
+                              <GridRow>
+                                <GridColumn>
+                                  <Header floated="right" disabled size="small">
+                                    このゲームにはまだ価格情報がありません
+                                  </Header>
+                                </GridColumn>
+                              </GridRow>
+                              <GridRow>
+                                <GridColumn>
+                                  <Button
+                                    floated="right"
+                                    color="blue"
+                                    content="価格情報を追加する"
+                                    as={Link}
+                                    to={`/games/${game.id}/edit`}
+                                  />
+                                </GridColumn>
+                              </GridRow>
+                            </Grid>
+                          );
+                        } else {
+                          return (
+                            <Grid>
+                              <GridRow>
+                                <GridColumn>
+                                  <Statistic
+                                    floated="right"
+                                    size="small"
+                                    label={minMarket}
+                                    value={`¥${minPrice.toLocaleString()}`}
+                                    style={{
+                                      verticalAlign: 'bottom',
+                                    }}
+                                  />
+                                </GridColumn>
+                              </GridRow>
+                              <GridRow>
+                                <GridColumn>
+                                  <ButtonGroup floated="right">
+                                    <Button
+                                      color="grey"
+                                      content="他の価格を見る"
+                                      as={Link}
+                                      to={`/games/${game.id}`}
+                                    />
+                                    <Button
+                                      color="teal"
+                                      content="ストアに行く"
+                                      as="a"
+                                      target="_blank"
+                                      href={minUrl}
+                                    />
+                                  </ButtonGroup>
+                                </GridColumn>
+                              </GridRow>
+                            </Grid>
+                          );
+                        }
+                      })()}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </CardGroup>
+          </GridColumn>
+        </GridRow>
+      </Grid>
     </PageWrapper>
   );
 };

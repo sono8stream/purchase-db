@@ -111,6 +111,14 @@ const GameInfoPage: React.FC = () => {
         {gameInfo?.name}
         <Header.Subheader>{gameInfo?.description}</Header.Subheader>
       </Header>
+      <Button
+        inverted
+        color="blue"
+        content="公式サイト"
+        as="a"
+        target="_blank"
+        href={gameInfo?.officialUrl}
+      />
       {gameInfo?.pages.map((page, index) => {
         return (
           <Card fluid key={index}>
@@ -152,6 +160,14 @@ const GameInfoPage: React.FC = () => {
           </Card>
         );
       })}
+      <Button
+        as={Link}
+        to={`${id}/edit`}
+        color="blue"
+        content="情報を編集する"
+        fluid
+      />
+      <Divider />
       <Breadcrumb>
         <BreadcrumbSection link as={Link} to="/">
           Top
