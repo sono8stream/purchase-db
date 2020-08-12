@@ -43,54 +43,60 @@ async function getBrowserPage() {
 }
 
 exports.getPrices = async (req, res) => {
-  if (req.method !== "POST") {
-    res.status(405).send("Method Not Allowed");
-    return;
-  }
-  if (!req.body || !req.body.urls) {
-    res.status(400).send("Request Body Not Found");
-    return;
-  }
+  res.set("Access-Control-Allow-Origin", "*");
 
-  if (!page) {
-    page = await getBrowserPage();
-  }
+  if (req.method === "OPTIONS") {
+    res.set("Access-Control-Allow-Methods", "POST");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+    res.set("Content-Type", "application/json");
+    res.status(204).send("");
+  } else {
+    console.log(req.rawBody);
+    if (!req.body || !req.body.urls) {
+      res.status(400).send("Request Body Not Found");
+      return;
+    }
 
-  const pages = [];
+    if (!page) {
+      page = await getBrowserPage();
+    }
 
-  for (const url of req.body.urls) {
-    for (const fetcher of fetchers) {
-      if (url.startsWith(fetcher.domain)) {
-        await page.goto(url);
+    const pages = [];
 
-        const name = await page.evaluate((nameSelector) => {
-          const elem = document.querySelector(nameSelector);
+    for (const url of req.body.urls) {
+      for (const fetcher of fetchers) {
+        if (url.startsWith(fetcher.domain)) {
+          await page.goto(url);
 
-          if (elem) {
-            return elem.textContent.trim();
-          }
+          const name = await page.evaluate((nameSelector) => {
+            const elem = document.querySelector(nameSelector);
 
-          return "";
-        }, fetcher.nameSelector);
+            if (elem) {
+              return elem.textContent.trim();
+            }
 
-        const price = await page.evaluate((priceSelector) => {
-          const elem = document.querySelector(priceSelector);
+            return "";
+          }, fetcher.nameSelector);
 
-          if (elem) {
-            return Number(elem.textContent.replace(/[^0-9]/g, ""));
-          }
+          const price = await page.evaluate((priceSelector) => {
+            const elem = document.querySelector(priceSelector);
 
-          return 0;
-        }, fetcher.priceSelector);
+            if (elem) {
+              return Number(elem.textContent.replace(/[^0-9]/g, ""));
+            }
 
-        const market = fetcher.market;
+            return 0;
+          }, fetcher.priceSelector);
 
-        pages.push({ name, market, price });
-        break;
+          const market = fetcher.market;
+
+          pages.push({ name, market, price });
+          break;
+        }
       }
     }
-  }
 
-  res.set("Content-Type", "application/json");
-  res.send({ pages });
+    res.set("Content-Type", "application/json");
+    res.send({ pages });
+  }
 };

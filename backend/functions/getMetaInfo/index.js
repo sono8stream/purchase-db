@@ -11,34 +11,38 @@ async function getBrowserPage() {
 }
 
 exports.getMetaInfo = async (req, res) => {
-  if (req.method !== "GET") {
-    res.status(405).send("Method Not Allowed");
-    return;
+  res.set("Access-Control-Allow-Origin", "*");
+
+  if (req.method === "OPTIONS") {
+    res.set("Access-Control-Allow-Methods", "GET");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+    res.status(204).send("");
+  } else {
+    if (!req.query || !req.query.url) {
+      res.status(400).send("Request Body Not Found");
+      return;
+    }
+
+    if (!page) {
+      page = await getBrowserPage();
+    }
+
+    console.log(req.query.url);
+    await page.goto(req.query.url);
+
+    const title = await page.evaluate(() => {
+      return document.querySelector('[property="og:title"]').content;
+    });
+
+    const description = await page.evaluate(() => {
+      return document.querySelector('[property="og:description"]').content;
+    });
+
+    const sumbnailUrl = await page.evaluate(() => {
+      return document.querySelector('[property="og:image"]').content;
+    });
+
+    res.set("Content-Type", "application/json");
+    res.send({ title, description, sumbnailUrl });
   }
-  if (!req.query || !req.query.url) {
-    res.status(400).send("Request Body Not Found");
-    return;
-  }
-
-  if (!page) {
-    page = await getBrowserPage();
-  }
-
-  console.log(req.query.url);
-  await page.goto(req.query.url);
-
-  const title = await page.evaluate(() => {
-    return document.querySelector('[property="og:title"]').content;
-  });
-
-  const description = await page.evaluate(() => {
-    return document.querySelector('[property="og:description"]').content;
-  });
-
-  const sumbnailUrl = await page.evaluate(() => {
-    return document.querySelector('[property="og:image"]').content;
-  });
-
-  res.set("Content-Type", "application/json");
-  res.send({ title, description, sumbnailUrl });
 };
