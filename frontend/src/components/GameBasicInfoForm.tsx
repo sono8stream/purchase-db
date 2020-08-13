@@ -35,7 +35,9 @@ const GameBasicInfoForm: React.FC<{
       officialUrl.startsWith('https://')
     ) {
       setIsFetchingInfo(true);
-      fetch(`/getMetaInfo?url=${officialUrl}`)
+      fetch(
+        `https://asia-northeast2-game-subscribe-db.cloudfunctions.net/getMetaInfo?url=${officialUrl}`
+      )
         .then((res) => {
           console.log(res);
           res.json().then((json) => {

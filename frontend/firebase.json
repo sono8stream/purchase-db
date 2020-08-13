@@ -8,14 +8,6 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
-        "source": "getPrices",
-        "function": "getPrices"
-      },
-      {
-        "source": "getMetaInfo",
-        "function": "getMetaInfo"
-      },
-      {
         "source": "**",
         "destination": "/index.html"
       }

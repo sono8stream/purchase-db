@@ -47,13 +47,16 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
     if (storeUrl.startsWith('http://') || storeUrl.startsWith('https://')) {
       setIsFetchingInfo(true);
 
-      fetch('/getPrices', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ urls: [storeUrl] }),
-      })
+      fetch(
+        'https://asia-northeast2-game-subscribe-db.cloudfunctions.net/getPrices',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ urls: [storeUrl] }),
+        }
+      )
         .then((res) => {
           res.json().then((json) => {
             const info = json.pages[0] as PageInfo;
