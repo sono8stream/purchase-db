@@ -51,7 +51,7 @@ exports.getPrices = async (req, res) => {
     res.set("Content-Type", "application/json");
     res.status(204).send("");
   } else {
-    console.log(req.rawBody);
+    console.log(req.body);
     if (!req.body || !req.body.urls) {
       res.status(400).send("Request Body Not Found");
       return;

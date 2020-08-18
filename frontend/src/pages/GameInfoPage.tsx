@@ -98,7 +98,15 @@ const GameInfoPage: React.FC = () => {
       <Grid>
         <GridRow>
           <GridColumn>
-            <Image floated="left" src={gameInfo?.sumbnailUrl} size="medium" />
+            <Image
+              floated="left"
+              src={
+                gameInfo
+                  ? gameInfo.sumbnailUrl || '/no_image.jpg'
+                  : '/no_image.jpg'
+              }
+              size="medium"
+            />
             <Header floated="left" size="large">
               {gameInfo?.name}
               <Header.Subheader>{gameInfo?.description}</Header.Subheader>

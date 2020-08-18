@@ -51,6 +51,9 @@ exports.subscribeAllPrices = async (event, context) => {
 
             historyRef.doc(doc.id).set(data);
           });
+      })
+      .catch((e) => {
+        console.log(e);
       });
   });
 };

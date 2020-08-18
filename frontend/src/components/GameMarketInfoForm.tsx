@@ -7,11 +7,11 @@ import {
   Table,
   Button,
   Input,
+  Message,
 } from 'semantic-ui-react';
 import { firestore } from '../firebase';
 import MarketPage from '../models/MarketPage';
 import GameInfo from '../models/GameInfo';
-import { Link } from 'react-router-dom';
 
 interface PageInfo {
   name: string;
@@ -26,6 +26,8 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
   const [pageInfo, setPageInfo] = useState({ name: '', market: '', price: 0 });
   const [unixDate, setUnixDate] = useState(0);
   const [pages, setPages] = useState([] as MarketPage[]);
+  const [isSettingNewStore, setIsSettingNewStore] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     firestore
@@ -46,6 +48,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
   const fillByOfficialURL = useCallback(() => {
     if (storeUrl.startsWith('http://') || storeUrl.startsWith('https://')) {
       setIsFetchingInfo(true);
+      setErrorMessage(null);
 
       fetch(
         'https://asia-northeast2-game-subscribe-db.cloudfunctions.net/getPrices',
@@ -57,30 +60,32 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           body: JSON.stringify({ urls: [storeUrl] }),
         }
       )
-        .then((res) => {
-          res.json().then((json) => {
-            const info = json.pages[0] as PageInfo;
-            if (info && info.name) {
-              setPageInfo({
-                name: info.name,
-                market: info.market,
-                price: info.price,
-              });
-              setStoreUrlIsValid(true);
-              const dateTmp = new Date();
-              const unixDateTmp = Math.floor(dateTmp.getTime() / 1000);
-              setUnixDate(unixDateTmp);
-            }
-            setIsFetchingInfo(false);
+        .then((res) => res.json())
+        .then((json) => {
+          const info = json.pages[0] as PageInfo;
+          setPageInfo({
+            name: info.name,
+            market: info.market,
+            price: info.price,
           });
+          setStoreUrlIsValid(true);
+          const dateTmp = new Date();
+          const unixDateTmp = Math.floor(dateTmp.getTime() / 1000);
+          setUnixDate(unixDateTmp);
+          setIsFetchingInfo(false);
+          setErrorMessage(null);
         })
-        .catch((e) => {
+        .catch(() => {
+          setErrorMessage('情報を取得できませんでした');
           setIsFetchingInfo(false);
         });
+    } else {
+      setErrorMessage('URLを入力してください');
     }
   }, [storeUrl]);
 
   const submitNewStore = useCallback(() => {
+    setIsSettingNewStore(true);
     const newPages = [
       ...pages,
       {
@@ -90,7 +95,6 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
         url: storeUrl,
       },
     ];
-    setPages(newPages);
     firestore
       .collection('games')
       .doc(id)
@@ -103,17 +107,17 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           .then((snapshot) => {
             const data = snapshot.data() || {};
 
-            pages.forEach((page) => {
-              if (!(page.url in data)) {
-                data[page.url] = [];
-              }
-              data[page.url].unshift({ date: unixDate, price: page.price });
-            });
+            if (!(storeUrl in data)) {
+              data[storeUrl] = [];
+            }
+            data[storeUrl].unshift({ date: unixDate, price: pageInfo.price });
 
             firestore.collection('history').doc(id).set(data);
             setStoreUrl('');
             setPageInfo({ name: '', market: '', price: 0 });
+            setPages(newPages);
             setStoreUrlIsValid(false);
+            setIsSettingNewStore(false);
           });
       });
   }, [pageInfo, unixDate, storeUrl]);
@@ -141,12 +145,14 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
   return (
     <>
       <Form>
+        <Message content="ストアURLを入力したあとにURLを検証してください。検証が成功するとゲームを追加できます。" />
         <Form>
           <FormInput
             label="・ストアURL"
             required
             value={storeUrl}
             onChange={(e, { name, value }) => changeStoreUrl(value)}
+            error={errorMessage}
           />
           <FormButton
             basic
@@ -157,14 +163,6 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           <Loader active={isFetchingInfo} inline />
         </Form>
         <div style={{ height: 16 }} />
-        <FormInput
-          label="・ストア"
-          required
-          value={pageInfo.market}
-          onChange={(e, { name, value }) =>
-            setPageInfo({ ...pageInfo, market: value })
-          }
-        />
         <FormInput
           label="・プラットフォーム / バージョン"
           value={pageInfo.name}
@@ -179,6 +177,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           disabled={!storeUrlIsValid}
           onClick={submitNewStore}
         />
+        <Loader active={isSettingNewStore} inline />
       </Form>
       <Table celled padded>
         <Table.Header>

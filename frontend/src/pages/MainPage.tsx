@@ -13,12 +13,13 @@ import {
   Divider,
   Breadcrumb,
   BreadcrumbSection,
-  BreadcrumbDivider,
   Container,
   GridRow,
   Grid,
   GridColumn,
   Header,
+  Placeholder,
+  PlaceholderImage,
 } from 'semantic-ui-react';
 import PageWrapper from '../components/PageWrapper';
 import { Link } from 'react-router-dom';
@@ -97,14 +98,15 @@ const Main: React.FC = () => {
                 });
 
                 return (
-                  <Card fluid={true} key={index}>
+                  <Card fluid key={index}>
                     <Image
                       floated="right"
-                      src={game.sumbnailUrl}
+                      src={game.sumbnailUrl || '/no_image.jpg'}
                       size="tiny"
                       wrapped
                       ui={false}
                     />
+
                     <CardContent>
                       <CardHeader size="medium" content={game.name} />
                       <CardDescription>{game.description}</CardDescription>

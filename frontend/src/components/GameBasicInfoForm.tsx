@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { Form, FormButton, FormInput, Loader } from 'semantic-ui-react';
+import { Form, FormButton, FormInput, Loader, Icon } from 'semantic-ui-react';
 import { firestore } from '../firebase';
 import GameInfo from '../models/GameInfo';
 
@@ -12,6 +12,11 @@ const GameBasicInfoForm: React.FC<{
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [sumbnailUrl, setSumbnailUrl] = useState('');
+  const [fetchErrorMessage, setFetchErrorMessage] = useState<string | null>(
+    null
+  );
+  const [isSubmittingInfo, setIsSubmittingInfo] = useState(false);
+  const [submitSucceeded, setSubmitSucceeded] = useState(id ? true : false);
 
   useEffect(() => {
     if (id) {
@@ -35,59 +40,66 @@ const GameBasicInfoForm: React.FC<{
       officialUrl.startsWith('https://')
     ) {
       setIsFetchingInfo(true);
+      setFetchErrorMessage(null);
+
       fetch(
         `https://asia-northeast2-game-subscribe-db.cloudfunctions.net/getMetaInfo?url=${officialUrl}`
       )
-        .then((res) => {
-          console.log(res);
-          res.json().then((json) => {
-            if (!title) {
-              setTitle(json.title);
-            }
-            if (!description) {
-              setDescription(json.description);
-            }
-            if (!sumbnailUrl) {
-              setSumbnailUrl(json.sumbnailUrl);
-            }
-          });
+        .then((res) => res.json())
+        .then((json) => {
+          setTitle(json.title);
+          setDescription(json.description);
+          setSumbnailUrl(json.sumbnailUrl);
           setIsFetchingInfo(false);
         })
         .catch((e) => {
+          console.log('a');
+          setFetchErrorMessage('情報を取得できませんでした');
           setIsFetchingInfo(false);
         });
+    } else {
+      setFetchErrorMessage('URLを入力してください');
     }
   }, [officialUrl]);
 
   const submitNewGame = useCallback(() => {
-    if (officialUrl && title && description && sumbnailUrl) {
-      if (id) {
-        firestore
-          .collection('games')
-          .doc(id)
-          .update({
-            name: title,
-            description,
-            officialUrl,
-            sumbnailUrl,
-          })
-          .then(() => {
-            onSubmit(id);
-          });
-      } else {
-        firestore
-          .collection('games')
-          .add({
-            name: title,
-            description,
-            officialUrl,
-            sumbnailUrl,
-            pages: [],
-          })
-          .then((ref) => {
-            onSubmit(ref.id);
-          });
-      }
+    setIsSubmittingInfo(true);
+    if (id) {
+      firestore
+        .collection('games')
+        .doc(id)
+        .update({
+          name: title,
+          description,
+          officialUrl,
+          sumbnailUrl,
+        })
+        .then(() => {
+          onSubmit(id);
+          setIsSubmittingInfo(false);
+          setSubmitSucceeded(true);
+        })
+        .catch(() => {
+          setIsSubmittingInfo(false);
+        });
+    } else {
+      firestore
+        .collection('games')
+        .add({
+          name: title,
+          description,
+          officialUrl,
+          sumbnailUrl,
+          pages: [],
+        })
+        .then((ref) => {
+          onSubmit(ref.id);
+          setIsSubmittingInfo(false);
+          setSubmitSucceeded(true);
+        })
+        .catch(() => {
+          setIsSubmittingInfo(false);
+        });
     }
   }, [officialUrl, title, description, sumbnailUrl, onSubmit]);
 
@@ -98,7 +110,11 @@ const GameBasicInfoForm: React.FC<{
           label="・公式サイトURL"
           required
           value={officialUrl}
-          onChange={(e, { name, value }) => setOfficialUrl(value)}
+          onChange={(e, { name, value }) => {
+            setOfficialUrl(value);
+            setSubmitSucceeded(false);
+          }}
+          error={fetchErrorMessage}
         />
         <FormButton
           basic
@@ -113,26 +129,36 @@ const GameBasicInfoForm: React.FC<{
         label="・ゲーム名"
         required
         value={title}
-        onChange={(e, { name, value }) => setTitle(value)}
+        onChange={(e, { name, value }) => {
+          setTitle(value);
+          setSubmitSucceeded(false);
+        }}
       />
       <FormInput
         label="・説明"
-        required
         value={description}
-        onChange={(e, { name, value }) => setDescription(value)}
+        onChange={(e, { name, value }) => {
+          setDescription(value);
+          setSubmitSucceeded(false);
+        }}
       />
       <FormInput
         label="・サムネイルURL"
-        required
         value={sumbnailUrl}
-        onChange={(e, { name, value }) => setSumbnailUrl(value)}
+        onChange={(e, { name, value }) => {
+          setSumbnailUrl(value);
+          setSubmitSucceeded(false);
+        }}
       />
       <FormButton
         basic
         color="blue"
         content={id ? '更新' : 'ゲームを追加'}
+        disabled={!(officialUrl && title)}
         onClick={submitNewGame}
       />
+      <Loader active={isSubmittingInfo} inline />
+      {(() => (submitSucceeded ? <Icon name="check" color="green" /> : null))()}
     </Form>
   );
 };
