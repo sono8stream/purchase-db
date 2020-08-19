@@ -8,6 +8,7 @@ import {
   Button,
   Input,
   Message,
+  Icon,
 } from 'semantic-ui-react';
 import { firestore } from '../firebase';
 import MarketPage from '../models/MarketPage';
@@ -63,6 +64,11 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
         .then((res) => res.json())
         .then((json) => {
           const info = json.pages[0] as PageInfo;
+
+          if (!info.price) {
+            throw new Error('Price value is invalid');
+          }
+
           setPageInfo({
             name: info.name,
             market: info.market,
@@ -173,11 +179,13 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
         <FormButton
           basic
           color="blue"
-          content="ゲームを追加"
+          content="ストアを追加"
           disabled={!storeUrlIsValid}
           onClick={submitNewStore}
         />
         <Loader active={isSettingNewStore} inline />
+        {(() =>
+          storeUrlIsValid ? <Icon name="check" color="green" /> : null)()}
       </Form>
       <Table celled padded>
         <Table.Header>

@@ -15,45 +15,60 @@ exports.subscribeAllPrices = async (event, context) => {
 
   const historyRef = db.collection("history");
 
+  const allPages = {};
+  const allUrls = [];
   gamesSnapshot.forEach((doc) => {
     const pages = doc.data().pages;
+    if (pages.length > 0) {
+      allPages[doc.id] = pages;
+      pages.forEach((page) => allUrls.push(page.url));
+    }
+  });
+  fetch(fetchUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      urls: allUrls,
+    }),
+  })
+    .then((res) => res.json())
+    .then((json) => {
+      const docKeys = Object.keys(allPages);
+      let docIdx = 0;
+      let pageIdx = 0;
+      json.pages.forEach((page) => {
+        const id = docKeys[docIdx];
 
-    const urls = pages.map((page) => page.url);
-    fetch(fetchUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        urls,
-      }),
-    })
-      .then((res) => res.json())
-      .then((json) => {
-        json.pages.forEach((page, idx) => {
-          pages[idx].name = page.name;
-          pages[idx].market = page.market;
-          pages[idx].price = page.price;
-        });
+        if (page.price) {
+          allPages[id][pageIdx].price = page.price;
+        }
 
-        gamesRef.doc(doc.id).update({ pages });
+        pageIdx++;
+        if (pageIdx >= allPages[id].length) {
+          gamesRef.doc(id).update({ pages: allPages[id] });
 
-        historyRef
-          .doc(doc.id)
-          .get()
-          .then((snapshot) => {
-            const data = snapshot.exists ? snapshot.data() : {};
+          historyRef
+            .doc(id)
+            .get()
+            .then((snapshot) => {
+              const data = snapshot.exists ? snapshot.data() : {};
 
-            pages.forEach((page) => {
-              if (!(page.url in data)) {
-                data[page.url] = [];
-              }
-              data[page.url].unshift({ date: unixDate, price: page.price });
+              allPages[id].forEach((page) => {
+                if (!(page.url in data)) {
+                  data[page.url] = [];
+                }
+                data[page.url].unshift({ date: unixDate, price: page.price });
+              });
+
+              historyRef.doc(id).set(data);
             });
 
-            historyRef.doc(doc.id).set(data);
-          });
-      })
-      .catch((e) => {
-        console.log(e);
+          docIdx++;
+          pageIdx = 0;
+        }
       });
-  });
+    })
+    .catch((e) => {
+      console.log(e);
+    });
 };
