@@ -5,7 +5,7 @@ import GameInfo from '../models/GameInfo';
 
 const GameBasicInfoForm: React.FC<{
   id: string;
-  onSubmit: (id: string) => void;
+  onSubmit?: (id: string) => void;
 }> = ({ id, onSubmit }) => {
   const [officialUrl, setOfficialUrl] = useState('');
   const [isFetchingInfo, setIsFetchingInfo] = useState(false);
@@ -75,7 +75,9 @@ const GameBasicInfoForm: React.FC<{
           sumbnailUrl,
         })
         .then(() => {
-          onSubmit(id);
+          if (onSubmit) {
+            onSubmit(id);
+          }
           setIsSubmittingInfo(false);
           setSubmitSucceeded(true);
         })
@@ -93,7 +95,9 @@ const GameBasicInfoForm: React.FC<{
           pages: [],
         })
         .then((ref) => {
-          onSubmit(ref.id);
+          if (onSubmit) {
+            onSubmit(ref.id);
+          }
           setIsSubmittingInfo(false);
           setSubmitSucceeded(true);
         })
@@ -101,7 +105,7 @@ const GameBasicInfoForm: React.FC<{
           setIsSubmittingInfo(false);
         });
     }
-  }, [officialUrl, title, description, sumbnailUrl, onSubmit]);
+  }, [officialUrl, title, description, sumbnailUrl, onSubmit, id]);
 
   return (
     <Form>

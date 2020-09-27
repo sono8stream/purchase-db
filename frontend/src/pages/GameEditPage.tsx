@@ -1,22 +1,12 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import PageWrapper from '../components/PageWrapper';
-import {
-  Form,
-  Header,
-  FormButton,
-  FormInput,
-  Loader,
-  Segment,
-  Button,
-} from 'semantic-ui-react';
-import { firestore } from '../firebase';
-import { useHistory, useParams } from 'react-router';
+import { Header, Segment, Button } from 'semantic-ui-react';
+import { useParams } from 'react-router';
 import GameBasicInfoForm from '../components/GameBasicInfoForm';
 import GameMarketInfoForm from '../components/GameMarketInfoForm';
 import { Link } from 'react-router-dom';
 
 const GameEditPage: React.FC = () => {
-  const history = useHistory();
   const id = useParams<{ id: string }>().id;
 
   return (
@@ -30,7 +20,7 @@ const GameEditPage: React.FC = () => {
       />
       <Segment>
         <Header>基本情報</Header>
-        <GameBasicInfoForm id={id} onSubmit={() => {}} />
+        <GameBasicInfoForm id={id} />
       </Segment>
       <Segment>
         <Header>ストア情報</Header>

@@ -18,8 +18,6 @@ import {
   Grid,
   GridColumn,
   Header,
-  Placeholder,
-  PlaceholderImage,
 } from 'semantic-ui-react';
 import PageWrapper from '../components/PageWrapper';
 import { Link } from 'react-router-dom';

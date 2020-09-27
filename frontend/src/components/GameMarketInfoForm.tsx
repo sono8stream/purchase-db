@@ -39,7 +39,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
         const info = doc.data() as GameInfo;
         setPages(info.pages);
       });
-  }, []);
+  }, [id]);
 
   const changeStoreUrl = useCallback((val) => {
     setStoreUrl(val);
@@ -88,7 +88,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
     } else {
       setErrorMessage('URLを入力してください');
     }
-  }, [storeUrl]);
+  }, [storeUrl, pageInfo.name]);
 
   const submitNewStore = useCallback(() => {
     setIsSettingNewStore(true);
@@ -126,7 +126,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
             setIsSettingNewStore(false);
           });
       });
-  }, [pageInfo, unixDate, storeUrl]);
+  }, [pageInfo, unixDate, storeUrl, id, pages]);
 
   const updatePagesStoreName = useCallback(
     (i: number, newName: string) => {
@@ -136,7 +136,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
       setPages(newPages);
       firestore.collection('games').doc(id).update({ pages: newPages });
     },
-    [pages]
+    [pages, id]
   );
 
   const removePagesStoreInfo = useCallback(
@@ -145,7 +145,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
       firestore.collection('games').doc(id).update({ pages: newPages });
       setPages(newPages);
     },
-    [pages]
+    [pages, id]
   );
 
   return (
@@ -211,7 +211,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
                 />
               </Table.Cell>
               <Table.Cell>
-                <a href={page.url} target="_blank">
+                <a href={page.url} target="_blank" rel="noopener noreferrer">
                   {page.url}
                 </a>
               </Table.Cell>
