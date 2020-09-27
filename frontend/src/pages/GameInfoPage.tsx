@@ -28,6 +28,7 @@ import {
 } from 'recharts';
 import { Link } from 'react-router-dom';
 import GameInfo from '../models/GameInfo';
+import getStoreName from '../utils/getStoreName';
 
 interface MarketHistory {
   date: string;
@@ -77,6 +78,12 @@ const GameInfoPage: React.FC = () => {
             });
           });
           history[key].reverse();
+          if (history[key].length > 0) {
+            history[key].push({
+              date: new Date().toLocaleDateString(),
+              price: history[key].slice(-1)[0].price,
+            });
+          }
         });
         setGameHistory(history);
       })
@@ -145,7 +152,11 @@ const GameInfoPage: React.FC = () => {
                     <Header
                       size="huge"
                       floated="left"
-                      content={`${page.name}(${page.market})`}
+                      content={
+                        page.name
+                          ? `${page.name} - ${getStoreName(page.market)}`
+                          : page.market
+                      }
                     />
                     <Statistic
                       floated="right"

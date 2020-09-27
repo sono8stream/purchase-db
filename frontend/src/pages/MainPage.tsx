@@ -23,6 +23,7 @@ import {
 } from 'semantic-ui-react';
 import PageWrapper from '../components/PageWrapper';
 import { Link } from 'react-router-dom';
+import getStoreName from '../utils/getStoreName';
 
 interface GamePage {
   date: string;
@@ -144,7 +145,13 @@ const Main: React.FC = () => {
                                   <Statistic
                                     floated="right"
                                     size="small"
-                                    label={`${minName}(${minMarket})`}
+                                    label={
+                                      minName
+                                        ? `${minName} - ${getStoreName(
+                                            minMarket
+                                          )}`
+                                        : minMarket
+                                    }
                                     value={`¥${minPrice.toLocaleString()}`}
                                     style={{
                                       verticalAlign: 'bottom',

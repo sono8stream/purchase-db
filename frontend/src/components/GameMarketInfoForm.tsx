@@ -70,7 +70,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           }
 
           setPageInfo({
-            name: info.name,
+            name: pageInfo.name ? pageInfo.name : info.name,
             market: info.market,
             price: info.price,
           });
@@ -142,8 +142,8 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
   const removePagesStoreInfo = useCallback(
     (i: number) => {
       const newPages = pages.filter((page, index) => index !== i);
-      setPages(newPages);
       firestore.collection('games').doc(id).update({ pages: newPages });
+      setPages(newPages);
     },
     [pages]
   );
