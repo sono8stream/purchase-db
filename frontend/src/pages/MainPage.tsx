@@ -18,30 +18,19 @@ import {
   Grid,
   GridColumn,
   Header,
+  Search,
+  Radio,
+  Transition,
 } from 'semantic-ui-react';
 import PageWrapper from '../components/PageWrapper';
 import { Link } from 'react-router-dom';
-import getStoreName from '../utils/getStoreName';
-
-interface GamePage {
-  date: string;
-  name: string;
-  market: string;
-  price: number;
-  url: string;
-}
-
-interface Game {
-  id: string;
-  name: string;
-  description: string;
-  officialUrl: string;
-  sumbnailUrl: string;
-  pages: GamePage[];
-}
+import PickUp from '../components/PickUp';
+import Game from '../types/game';
+import GameCard from '../components/GameCard';
 
 const Main: React.FC = () => {
   const [gameList, setGameList] = useState<Game[]>([]);
+  const [viewAll, setViewAll] = useState(false);
 
   useEffect(() => {
     firestore
@@ -69,6 +58,11 @@ const Main: React.FC = () => {
       <Grid>
         <GridRow>
           <GridColumn>
+            <Search aligned="center" fluid />
+          </GridColumn>
+        </GridRow>
+        <GridRow>
+          <GridColumn>
             <Button
               inverted
               content="ゲームを追加する"
@@ -81,112 +75,43 @@ const Main: React.FC = () => {
         </GridRow>
         <GridRow>
           <GridColumn>
-            <CardGroup stackable itemsPerRow={3}>
-              {gameList.map((game, index) => {
-                let minName = '';
-                let minMarket = '';
-                let minPrice = 1e9;
-                let minUrl = '';
-                game.pages.forEach((page) => {
-                  if (page.price < minPrice) {
-                    minName = page.name;
-                    minMarket = page.market;
-                    minPrice = page.price;
-                    minUrl = page.url;
-                  }
-                });
-
-                return (
-                  <Card fluid key={index}>
-                    <Image
-                      floated="right"
-                      src={game.sumbnailUrl || '/no_image.jpg'}
-                      size="tiny"
-                      wrapped
-                      ui={false}
-                    />
-
-                    <CardContent>
-                      <CardHeader size="medium" content={game.name} />
-                      <CardDescription>{game.description}</CardDescription>
-                    </CardContent>
-                    <CardContent extra>
-                      {(() => {
-                        if (minPrice === 1e9) {
-                          return (
-                            <Grid>
-                              <GridRow>
-                                <GridColumn>
-                                  <Header floated="right" disabled size="small">
-                                    このゲームにはまだ価格情報がありません
-                                  </Header>
-                                </GridColumn>
-                              </GridRow>
-                              <GridRow>
-                                <GridColumn>
-                                  <Button
-                                    floated="right"
-                                    color="blue"
-                                    content="価格情報を追加する"
-                                    as={Link}
-                                    to={`/games/${game.id}/edit`}
-                                  />
-                                </GridColumn>
-                              </GridRow>
-                            </Grid>
-                          );
-                        } else {
-                          return (
-                            <Grid>
-                              <GridRow>
-                                <GridColumn>
-                                  <Statistic
-                                    floated="right"
-                                    size="small"
-                                    label={
-                                      minName
-                                        ? `${minName} - ${getStoreName(
-                                            minMarket
-                                          )}`
-                                        : minMarket
-                                    }
-                                    value={`¥${minPrice.toLocaleString()}`}
-                                    style={{
-                                      verticalAlign: 'bottom',
-                                    }}
-                                  />
-                                </GridColumn>
-                              </GridRow>
-                              <GridRow>
-                                <GridColumn>
-                                  <ButtonGroup floated="right">
-                                    <Button
-                                      color="grey"
-                                      content="他の価格を見る"
-                                      as={Link}
-                                      to={`/games/${game.id}`}
-                                    />
-                                    <Button
-                                      color="teal"
-                                      content="ストアに行く"
-                                      as="a"
-                                      target="_blank"
-                                      href={minUrl}
-                                    />
-                                  </ButtonGroup>
-                                </GridColumn>
-                              </GridRow>
-                            </Grid>
-                          );
-                        }
-                      })()}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </CardGroup>
+            <PickUp games={gameList.filter((game, idx) => idx < 2)} />
           </GridColumn>
         </GridRow>
+        {viewAll ? (
+          <>
+            <GridRow>
+              <GridColumn>
+                <Button
+                  inverted
+                  color="green"
+                  content="折りたたむ"
+                  onClick={() => setViewAll(false)}
+                />
+              </GridColumn>
+            </GridRow>
+            <GridRow>
+              <GridColumn>
+                <CardGroup stackable itemsPerRow={3}>
+                  {gameList.map((game, index) => (
+                    <GameCard key={game.id} game={game} />
+                  ))}
+                </CardGroup>
+              </GridColumn>
+            </GridRow>
+          </>
+        ) : (
+          <GridRow>
+            <GridColumn>
+              <Button
+                inverted
+                color="purple"
+                content="すべて見る"
+                onClick={() => setViewAll(true)}
+              />
+            </GridColumn>
+          </GridRow>
+        )}
       </Grid>
     </PageWrapper>
   );
