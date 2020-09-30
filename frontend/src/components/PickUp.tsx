@@ -28,7 +28,7 @@ const PickUp: React.FC<{ games: Game[] }> = ({ games }) => {
       <Header content="Pick Up!" />
       <CardGroup stackable itemsPerRow={games.length as any}>
         {games.map((game, idx) => (
-          <GameCard game={game} />
+          <GameCard key={game.id} game={game} />
         ))}
       </CardGroup>
       {/*
