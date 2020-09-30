@@ -97,7 +97,7 @@ const Main: React.FC = () => {
         </GridRow>
         <GridRow>
           <GridColumn>
-            <PickUp games={gameList.filter((game, idx) => idx < 2)} />
+            <PickUp games={gameList} pickUpCnt={2} />
           </GridColumn>
         </GridRow>
         {viewAll ? (

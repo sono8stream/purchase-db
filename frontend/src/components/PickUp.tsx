@@ -22,12 +22,30 @@ import {
 import Game from '../types/game';
 import GameCard from './GameCard';
 
-const PickUp: React.FC<{ games: Game[] }> = ({ games }) => {
+const PickUp: React.FC<{ games: Game[]; pickUpCnt: number }> = ({
+  games,
+  pickUpCnt,
+}) => {
+  let list = games.slice();
+  if (list.length > pickUpCnt) {
+    const filtered = [];
+    let i = 0;
+    let len = list.length;
+    while (i < pickUpCnt) {
+      const idx = Math.floor(Math.random() * len);
+      filtered.push(list[idx]);
+      len--;
+      list[idx] = list[len];
+      i++;
+    }
+    list = filtered;
+  }
+
   return (
     <>
       <Header content="Pick Up!" />
-      <CardGroup stackable itemsPerRow={games.length as any}>
-        {games.map((game, idx) => (
+      <CardGroup stackable itemsPerRow={pickUpCnt as any}>
+        {list.map((game) => (
           <GameCard key={game.id} game={game} />
         ))}
       </CardGroup>

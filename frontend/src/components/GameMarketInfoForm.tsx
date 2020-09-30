@@ -16,6 +16,7 @@ import { firestore } from '../firebase';
 import MarketPage from '../models/MarketPage';
 import GameInfo from '../models/GameInfo';
 import { Link } from 'react-router-dom';
+import getStoreName from '../utils/getStoreName';
 
 interface PageInfo {
   name: string;
@@ -178,7 +179,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
               ）
             </ListItem>
             <ListItem>
-              Steamストア（
+              Steam（
               <a href="https://store.steampowered.com" target="_blank">
                 https://store.steampowered.com
               </a>
@@ -242,7 +243,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
         <Table.Body>
           {pages.map((page, index) => (
             <Table.Row key={index}>
-              <Table.Cell>{page.market}</Table.Cell>
+              <Table.Cell>{getStoreName(page.market)}</Table.Cell>
               <Table.Cell>
                 <Input
                   defaultValue={page.name}

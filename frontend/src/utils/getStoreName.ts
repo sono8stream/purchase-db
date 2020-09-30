@@ -1,9 +1,11 @@
 const getStoreName = (market: string) => {
   switch (market) {
     case 'Nintendo':
-      return 'My Nintendo Store';
+      return 'ニンテンドーストア';
     case 'PlayStation':
-      return 'PS Store';
+      return 'PSストア';
+    case 'amazon':
+      return 'Amazon';
     default:
       return market;
   }
