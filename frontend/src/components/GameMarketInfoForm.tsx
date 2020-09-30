@@ -9,10 +9,13 @@ import {
   Input,
   Message,
   Icon,
+  List,
+  ListItem,
 } from 'semantic-ui-react';
 import { firestore } from '../firebase';
 import MarketPage from '../models/MarketPage';
 import GameInfo from '../models/GameInfo';
+import { Link } from 'react-router-dom';
 
 interface PageInfo {
   name: string;
@@ -151,7 +154,46 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
   return (
     <>
       <Form>
-        <Message content="ストアURLを入力したあとにURLを検証してください。検証が成功するとゲームを追加できます。" />
+        <Message>
+          ストアURLを入力したあとにURLを検証してください。
+          検証が成功するとゲームを追加できます。
+          <br />
+          現在対応中のストアは以下の通りです。
+          <List
+            bulleted
+            items={['PSストア（）', 'Steamストア', 'Amazonマーケットプレイス']}
+          >
+            <ListItem>
+              ニンテンドーストア（
+              <a href="https://www.nintendo.co.jp" target="_blank">
+                https://www.nintendo.co.jp
+              </a>
+              ）
+            </ListItem>
+            <ListItem>
+              PSストア（
+              <a href="https://store.playstation.com" target="_blank">
+                https://store.playstation.com
+              </a>
+              ）
+            </ListItem>
+            <ListItem>
+              Steamストア（
+              <a href="https://store.steampowered.com" target="_blank">
+                https://store.steampowered.com
+              </a>
+              ）
+            </ListItem>
+            <ListItem>
+              Amazon（
+              <a href="https://www.amazon.co.jp" target="_blank">
+                https://www.amazon.co.jp
+              </a>
+              ）
+            </ListItem>
+          </List>
+          ストア追加のお問い合わせは<Link to="/contact">こちら</Link>。
+        </Message>
         <Form>
           <FormInput
             label="・ストアURL"
