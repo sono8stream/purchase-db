@@ -1,6 +1,7 @@
 {
-  "name": "game-subscribe-db",
-  "version": "0.1.0",
+  "name": "game-db",
+  "version": "1.0.0",
+  "homepage": "https://game-db.sonoapp.page",
   "private": true,
   "scripts": {
     "start": "react-scripts start",

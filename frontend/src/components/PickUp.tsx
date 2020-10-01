@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dot,
   CarouselProvider,
@@ -26,26 +26,31 @@ const PickUp: React.FC<{ games: Game[]; pickUpCnt: number }> = ({
   games,
   pickUpCnt,
 }) => {
-  let list = games.slice();
-  if (list.length > pickUpCnt) {
-    const filtered = [];
-    let i = 0;
-    let len = list.length;
-    while (i < pickUpCnt) {
-      const idx = Math.floor(Math.random() * len);
-      filtered.push(list[idx]);
-      len--;
-      list[idx] = list[len];
-      i++;
+  const [pickUps, setPickUps] = useState<Game[]>([]);
+
+  useEffect(() => {
+    let list = games.slice();
+    if (list.length > pickUpCnt) {
+      const filtered = [];
+      let i = 0;
+      let len = list.length;
+      while (i < pickUpCnt) {
+        const idx = Math.floor(Math.random() * len);
+        filtered.push(list[idx]);
+        len--;
+        list[idx] = list[len];
+        i++;
+      }
+      list = filtered;
     }
-    list = filtered;
-  }
+    setPickUps(list);
+  }, [games, pickUpCnt]);
 
   return (
     <>
       <Header content="Pick Up!" />
       <CardGroup stackable itemsPerRow={pickUpCnt as any}>
-        {list.map((game) => (
+        {pickUps.map((game) => (
           <GameCard key={game.id} game={game} />
         ))}
       </CardGroup>
