@@ -3,34 +3,34 @@ const puppeteer = require("puppeteer");
 let page;
 const fetchers = [
   {
-    domain: "https://ec.nintendo.com",
-    nameSelector: ".o_c-page-title",
+    domain: "https://store-jp.nintendo.com",
+    nameSelector: ".productDetail--headline__title",
     market: "Nintendo",
-    priceSelector: ".o_p-product-detail__price--price",
+    priceSelectors: ".productDetail--detail__pricePrice",
   },
   {
     domain: "https://www.nintendo.co.jp",
     nameSelector: ".soft-title-heading",
     market: "Nintendo",
-    priceSelector: ".online-price-value",
+    priceSelectors: ".online-price-value",
   },
   {
     domain: "https://store.playstation.com",
     nameSelector: ".pdp__title",
     market: "PlayStation",
-    priceSelector: ".price-display__price",
+    priceSelectors: ".price-display__price",
   },
   {
     domain: "https://store.steampowered.com",
     nameSelector: ".apphub_AppName",
     market: "Steam",
-    priceSelector: ".game_purchase_price",
+    priceSelectors: ".game_purchase_price,.discount_final_price",
   },
   {
     domain: "https://www.amazon.co.jp",
     nameSelector: ".product-title-word-break",
     market: "amazon",
-    priceSelector: "#priceblock_ourprice",
+    priceSelectors: "#priceblock_ourprice",
   },
 ];
 
@@ -78,15 +78,15 @@ exports.getPrices = async (req, res) => {
             return "";
           }, fetcher.nameSelector);
 
-          const price = await page.evaluate((priceSelector) => {
-            const elem = document.querySelector(priceSelector);
+          const price = await page.evaluate((priceSelectors) => {
+            const elem = document.querySelectorAll(priceSelectors);
 
-            if (elem) {
-              return Number(elem.textContent.replace(/[^0-9]/g, ""));
+            if (elem[0]) {
+              return Number(elem[0].textContent.replace(/[^0-9]/g, ""));
             }
 
             return 0;
-          }, fetcher.priceSelector);
+          }, fetcher.priceSelectors);
 
           const market = fetcher.market;
 

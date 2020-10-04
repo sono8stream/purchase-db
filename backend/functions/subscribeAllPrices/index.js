@@ -57,7 +57,7 @@ exports.subscribeAllPrices = async (event, context) => {
                 if (!(page.url in data)) {
                   data[page.url] = [];
                 }
-                if (data[page.url].length == 0) {
+                if (data[page.url].length === 0) {
                   data[page.url].unshift({ date: unixDate, price: page.price });
                 } else if (data[page.url][0].price !== page.price) {
                   data[page.url].unshift({

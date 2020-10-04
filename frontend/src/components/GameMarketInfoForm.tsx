@@ -1,21 +1,24 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
+  Button,
   Form,
   FormButton,
   FormInput,
-  Loader,
-  Table,
-  Button,
-  Input,
-  Message,
+  Grid,
+  Header,
   Icon,
+  Input,
   List,
   ListItem,
+  Loader,
+  Message,
+  Segment,
+  Table,
 } from 'semantic-ui-react';
 import { firestore } from '../firebase';
-import MarketPage from '../models/MarketPage';
 import GameInfo from '../models/GameInfo';
-import { Link } from 'react-router-dom';
+import MarketPage from '../models/MarketPage';
 import getStoreName from '../utils/getStoreName';
 
 interface PageInfo {
@@ -28,6 +31,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
   const [storeUrl, setStoreUrl] = useState('');
   const [isFetchingInfo, setIsFetchingInfo] = useState(false);
   const [storeUrlIsValid, setStoreUrlIsValid] = useState(false);
+  const [pageName, setPageName] = useState('');
   const [pageInfo, setPageInfo] = useState({ name: '', market: '', price: 0 });
   const [unixDate, setUnixDate] = useState(0);
   const [pages, setPages] = useState([] as MarketPage[]);
@@ -51,7 +55,17 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
   }, []);
 
   const fillByOfficialURL = useCallback(() => {
-    if (storeUrl.startsWith('http://') || storeUrl.startsWith('https://')) {
+    if (storeUrl.startsWith('https://')) {
+      let fetchUrl = storeUrl;
+      if (
+        fetchUrl.startsWith('https://store.steampowered.com') &&
+        !fetchUrl.endsWith('?cc=jp')
+      ) {
+        fetchUrl += '?cc=jp';
+      }
+
+      setPageName('');
+      setPageInfo({ ...pageInfo, price: 0 });
       setIsFetchingInfo(true);
       setErrorMessage(null);
 
@@ -62,7 +76,7 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ urls: [storeUrl] }),
+          body: JSON.stringify({ urls: [fetchUrl] }),
         }
       )
         .then((res) => res.json())
@@ -73,8 +87,9 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
             throw new Error('Price value is invalid');
           }
 
+          setPageName(info.name);
           setPageInfo({
-            name: pageInfo.name ? pageInfo.name : info.name,
+            ...pageInfo,
             market: info.market,
             price: info.price,
           });
@@ -85,7 +100,8 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
           setIsFetchingInfo(false);
           setErrorMessage(null);
         })
-        .catch(() => {
+        .catch((e) => {
+          console.log(e);
           setErrorMessage('情報を取得できませんでした');
           setIsFetchingInfo(false);
         });
@@ -203,14 +219,26 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
             onChange={(e, { name, value }) => changeStoreUrl(value)}
             error={errorMessage}
           />
-          <FormButton
-            basic
-            color="green"
-            content="URLを検証"
-            onClick={fillByOfficialURL}
-          />
-          <Loader active={isFetchingInfo} inline />
+          <Grid columns={2}>
+            <Grid.Column>
+              <FormButton
+                basic
+                color="green"
+                content="URLを検証"
+                onClick={fillByOfficialURL}
+              />
+            </Grid.Column>
+            <Grid.Column>
+              <Loader active={isFetchingInfo} inline />
+            </Grid.Column>
+          </Grid>
         </Form>
+        <Segment>
+          <Header size="tiny">・ページ名</Header>
+          {pageName ? pageName : <br />}
+          <Header size="tiny">・価格</Header>
+          {pageInfo.price > 0 ? `¥${pageInfo.price}` : <br />}
+        </Segment>
         <div style={{ height: 16 }} />
         <FormInput
           label="・プラットフォーム / バージョン"
@@ -219,16 +247,24 @@ const GameMarketInfoForm: React.FC<{ id: string }> = ({ id }) => {
             setPageInfo({ ...pageInfo, name: value })
           }
         />
-        <FormButton
-          basic
-          color="blue"
-          content="ストアを追加"
-          disabled={!storeUrlIsValid}
-          onClick={submitNewStore}
-        />
-        <Loader active={isSettingNewStore} inline />
-        {(() =>
-          storeUrlIsValid ? <Icon name="check" color="green" /> : null)()}
+        <Grid columns={3}>
+          <Grid.Column>
+            <FormButton
+              basic
+              color="blue"
+              content="ストアを追加"
+              disabled={!storeUrlIsValid}
+              onClick={submitNewStore}
+            />
+          </Grid.Column>
+          <Grid.Column>
+            {(() =>
+              storeUrlIsValid ? <Icon name="check" color="green" /> : null)()}
+          </Grid.Column>
+          <Grid.Column>
+            <Loader active={isSettingNewStore} inline />
+          </Grid.Column>
+        </Grid>
       </Form>
       <Table celled padded>
         <Table.Header>
