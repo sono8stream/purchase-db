@@ -6,7 +6,7 @@ const fetchers = [
     domain: "https://store-jp.nintendo.com",
     nameSelector: ".productDetail--headline__title",
     market: "Nintendo",
-    priceSelectors: ".productDetail--detail__pricePrice",
+    priceSelectors: ".productDetail--detail__price > span",
   },
   {
     domain: "https://www.nintendo.co.jp",
@@ -64,6 +64,7 @@ exports.getPrices = async (req, res) => {
     const pages = [];
 
     for (const url of req.body.urls) {
+      let isPushed = false;
       for (const fetcher of fetchers) {
         if (url.startsWith(fetcher.domain)) {
           await page.goto(url);
@@ -91,8 +92,12 @@ exports.getPrices = async (req, res) => {
           const market = fetcher.market;
 
           pages.push({ name, market, price });
+          isPushed = true;
           break;
         }
+      }
+      if (!isPushed) {
+        pages.push({ name: "", market: "", price: 0 });
       }
     }
 

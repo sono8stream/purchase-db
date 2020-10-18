@@ -15,14 +15,16 @@ exports.subscribeAllPrices = async (event, context) => {
 
   const historyRef = db.collection("history");
 
-  const allPages = {};
+  const allPages = [];
   const allUrls = [];
   gamesSnapshot.forEach((doc) => {
     const pages = doc.data().pages;
     if (pages.length > 0) {
-      allPages[doc.id] = pages;
-      pages.forEach((page) => allUrls.push(page.url));
+      allPages.push({ id: doc.id, pages });
     }
+    pages.forEach((page) => {
+      allUrls.push(page.url);
+    });
   });
   fetch(fetchUrl, {
     method: "POST",
@@ -33,19 +35,18 @@ exports.subscribeAllPrices = async (event, context) => {
   })
     .then((res) => res.json())
     .then((json) => {
-      const docKeys = Object.keys(allPages);
       let docIdx = 0;
-      let pageIdx = 0;
-      json.pages.forEach((page) => {
-        const id = docKeys[docIdx];
+      let pageCnt = 0;
 
+      json.pages.forEach((page, idx) => {
         if (page.price) {
-          allPages[id][pageIdx].price = page.price;
+          allPages[docIdx].pages[pageCnt].price = page.price;
         }
 
-        pageIdx++;
-        if (pageIdx >= allPages[id].length) {
-          gamesRef.doc(id).update({ pages: allPages[id] });
+        pageCnt++;
+        if (pageCnt == allPages[docIdx].pages.length) {
+          const id = allPages[docIdx].id;
+          gamesRef.doc(id).update({ pages: allPages[docIdx].pages });
 
           historyRef
             .doc(id)
@@ -53,7 +54,7 @@ exports.subscribeAllPrices = async (event, context) => {
             .then((snapshot) => {
               const data = snapshot.exists ? snapshot.data() : {};
 
-              allPages[id].forEach((page) => {
+              allPages[docIdx].pages.forEach((page) => {
                 if (!(page.url in data)) {
                   data[page.url] = [];
                 }
@@ -72,7 +73,7 @@ exports.subscribeAllPrices = async (event, context) => {
             });
 
           docIdx++;
-          pageIdx = 0;
+          pageCnt = 0;
         }
       });
     })
