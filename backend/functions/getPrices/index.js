@@ -67,7 +67,7 @@ exports.getPrices = async (req, res) => {
       let isPushed = false;
       for (const fetcher of fetchers) {
         if (url.startsWith(fetcher.domain)) {
-          await page.goto(url);
+          await page.goto(url, { waitUntil: "networkidle2" });
 
           const name = await page.evaluate((nameSelector) => {
             const elem = document.querySelector(nameSelector);

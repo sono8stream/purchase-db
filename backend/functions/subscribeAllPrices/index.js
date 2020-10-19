@@ -38,13 +38,13 @@ exports.subscribeAllPrices = async (event, context) => {
       let docIdx = 0;
       let pageCnt = 0;
 
-      json.pages.forEach((page, idx) => {
+      json.pages.forEach((page) => {
         if (page.price) {
           allPages[docIdx].pages[pageCnt].price = page.price;
         }
 
         pageCnt++;
-        if (pageCnt == allPages[docIdx].pages.length) {
+        if (pageCnt === allPages[docIdx].pages.length) {
           const id = allPages[docIdx].id;
           gamesRef.doc(id).update({ pages: allPages[docIdx].pages });
 
@@ -59,7 +59,7 @@ exports.subscribeAllPrices = async (event, context) => {
                   data[page.url] = [];
                 }
                 if (data[page.url].length === 0) {
-                  data[page.url].unshift({ date: unixDate, price: page.price });
+                  data[page.url].push({ date: unixDate, price: page.price });
                 } else if (data[page.url][0].price !== page.price) {
                   data[page.url].unshift({
                     date: unixDate,

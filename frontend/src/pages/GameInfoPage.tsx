@@ -1,32 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { firestore } from '../firebase';
+import { useParams } from 'react-router';
+import { Link } from 'react-router-dom';
 import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  Breadcrumb,
+  BreadcrumbDivider,
+  BreadcrumbSection,
   Button,
   Card,
   CardContent,
-  Statistic,
+  Container,
+  Divider,
+  Grid,
+  GridColumn,
+  GridRow,
   Header,
   Image,
-  Container,
-  Breadcrumb,
-  Divider,
-  BreadcrumbSection,
-  BreadcrumbDivider,
-  Grid,
-  GridRow,
-  GridColumn,
+  Statistic,
 } from 'semantic-ui-react';
 import PageWrapper from '../components/PageWrapper';
-import { useParams } from 'react-router';
-import {
-  LineChart,
-  Line,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-} from 'recharts';
-import { Link } from 'react-router-dom';
+import { firestore } from '../firebase';
 import GameInfo from '../models/GameInfo';
 import getStoreName from '../utils/getStoreName';
 
@@ -81,7 +81,7 @@ const GameInfoPage: React.FC = () => {
           if (history[key].length > 0) {
             history[key].push({
               date: new Date().toLocaleDateString(),
-              price: history[key].slice(-1)[0].price,
+              price: history[key][history[key].length - 1].price,
             });
           }
         });
