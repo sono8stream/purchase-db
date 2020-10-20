@@ -17,70 +17,63 @@ exports.subscribeAllPrices = async (event, context) => {
 
   const allPages = [];
   const allUrls = [];
-  gamesSnapshot.forEach((doc) => {
+  const pricesRes = await gamesSnapshot.forEach((doc) => {
     const pages = doc.data().pages;
-    if (pages && pages.length > 0) {
+    if (pages.length > 0) {
       allPages.push({ id: doc.id, pages });
     }
     pages.forEach((page) => {
       allUrls.push(page.url);
     });
   });
+
   fetch(fetchUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       urls: allUrls,
     }),
-  })
-    .then((res) => res.json())
-    .then((json) => {
-      let docIdx = 0;
-      let pageCnt = 0;
+  });
+  const pricesJson = await pricesRes.json();
 
-      json.pages.forEach((page) => {
-        if (page.price) {
-          allPages[docIdx].pages[pageCnt].price = page.price;
+  let docIdx = 0;
+  let pageCnt = 0;
+
+  for (const page of pricesJson.pages) {
+    if (page.price) {
+      allPages[docIdx].pages[pageCnt].price = page.price;
+    }
+
+    pageCnt++;
+    if (pageCnt === allPages[docIdx].pages.length) {
+      const id = allPages[docIdx].id;
+      gamesRef.doc(id).update({ pages: allPages[docIdx].pages });
+
+      const snapshot = await historyRef.doc(id).get();
+      const data = snapshot.exists ? snapshot.data() : {};
+
+      allPages[docIdx].pages.forEach((page) => {
+        if (!(page.url in data)) {
+          data[page.url] = [];
         }
 
-        pageCnt++;
-        if (pageCnt === allPages[docIdx].pages.length) {
-          const id = allPages[docIdx].id;
-          gamesRef.doc(id).update({ pages: allPages[docIdx].pages });
-
-          historyRef
-            .doc(id)
-            .get()
-            .then((snapshot) => {
-              const data = snapshot.exists ? snapshot.data() : {};
-
-              allPages[docIdx].pages.forEach((page) => {
-                if (!(page.url in data)) {
-                  data[page.url] = [];
-                }
-
-                if (data[page.url].length === 0) {
-                  data[page.url].push({ date: unixDate, price: page.price });
-                } else if (data[page.url][0].price !== page.price) {
-                  data[page.url].unshift(
-                    { date: unixDate, price: page.price },
-                    {
-                      date: unixDate,
-                      price: data[page.url][0].price,
-                    }
-                  );
-                }
-              });
-
-              historyRef.doc(id).set(data);
-            });
-
-          docIdx++;
-          pageCnt = 0;
+        if (data[page.url].length === 0) {
+          data[page.url].push({ date: unixDate, price: page.price });
+        } else if (data[page.url][0].price !== page.price) {
+          data[page.url].unshift(
+            { date: unixDate, price: page.price },
+            {
+              date: unixDate,
+              price: data[page.url][0].price,
+            }
+          );
         }
       });
-    })
-    .catch((e) => {
-      console.log(e);
-    });
+
+      historyRef.doc(id).set(data);
+
+      docIdx++;
+      pageCnt = 0;
+    }
+  }
 };
