@@ -19,7 +19,7 @@ exports.subscribeAllPrices = async (event, context) => {
   const allUrls = [];
   gamesSnapshot.forEach((doc) => {
     const pages = doc.data().pages;
-    if (pages.length > 0) {
+    if (pages && pages.length > 0) {
       allPages.push({ id: doc.id, pages });
     }
     pages.forEach((page) => {
@@ -58,14 +58,17 @@ exports.subscribeAllPrices = async (event, context) => {
                 if (!(page.url in data)) {
                   data[page.url] = [];
                 }
+
                 if (data[page.url].length === 0) {
                   data[page.url].push({ date: unixDate, price: page.price });
                 } else if (data[page.url][0].price !== page.price) {
-                  data[page.url].unshift({
-                    date: unixDate,
-                    price: data[page.url][0].price,
-                  });
-                  data[page.url].unshift({ date: unixDate, price: page.price });
+                  data[page.url].unshift(
+                    { date: unixDate, price: page.price },
+                    {
+                      date: unixDate,
+                      price: data[page.url][0].price,
+                    }
+                  );
                 }
               });
 
