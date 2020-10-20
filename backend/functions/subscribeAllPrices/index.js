@@ -17,7 +17,7 @@ exports.subscribeAllPrices = async (event, context) => {
 
   const allPages = [];
   const allUrls = [];
-  const pricesRes = await gamesSnapshot.forEach((doc) => {
+  gamesSnapshot.forEach((doc) => {
     const pages = doc.data().pages;
     if (pages.length > 0) {
       allPages.push({ id: doc.id, pages });
@@ -27,7 +27,7 @@ exports.subscribeAllPrices = async (event, context) => {
     });
   });
 
-  fetch(fetchUrl, {
+  const pricesRes = await fetch(fetchUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
