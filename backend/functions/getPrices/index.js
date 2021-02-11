@@ -6,7 +6,8 @@ const fetchers = [
     domain: "https://store-jp.nintendo.com",
     nameSelector: ".productDetail--headline__title",
     market: "Nintendo",
-    priceSelectors: ".productDetail--detail__price > span",
+    priceSelectors:
+      ".productDetail--detail__price, .productDetail--detail__pricePrice",
   },
   {
     domain: "https://www.nintendo.co.jp",
