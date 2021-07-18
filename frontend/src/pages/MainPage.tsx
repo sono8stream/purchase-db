@@ -97,7 +97,7 @@ const Main: React.FC = () => {
         </GridRow>
         <GridRow>
           <GridColumn>
-            <PickUp games={gameList} pickUpCnt={2} />
+            <PickUp games={gameList} pickUpCnt={3} />
           </GridColumn>
         </GridRow>
         {viewAll ? (
@@ -114,7 +114,7 @@ const Main: React.FC = () => {
             </GridRow>
             <GridRow>
               <GridColumn>
-                <CardGroup stackable itemsPerRow={3}>
+                <CardGroup stackable doubling itemsPerRow={3}>
                   {gameList.map((game) => (
                     <GameCard key={game.id} game={game} />
                   ))}
